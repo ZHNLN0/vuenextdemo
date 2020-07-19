@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <p>
+    <!-- <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
       <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
@@ -28,15 +28,48 @@
       <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
       <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    </ul> -->
+    <!-- <component-one /> -->
+    <component :is="componentName" v-model:count="count" />
+    <component-two>
+      slot
+    </component-two>
+    <button @click="changeUser">{{ user }}</button>
+    <component-four :user="user" />
   </div>
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue';
+import ComponentOne from './ComponentOne.vue';
+import ComponentFour from './ComponentFour.vue';
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String,
+  },
+  components: {
+    ComponentOne,
+    ComponentTwo: defineAsyncComponent(() => import('./ComponentTwo.vue')),
+    ComponentFour,
+  },
+  provide() {
+    return {
+      provideMsg: 'it is provide message!',
+    };
+  },
+  data() {
+    return {
+      componentName: 'ComponentOne',
+      count: 1,
+      user: 'zhangsan',
+    };
+  },
+  methods: {
+    changeUser() {
+      this.user = this.user === 'zhangsan' ? 'lisi' : 'zhangsan';
+    },
   },
 };
 </script>
