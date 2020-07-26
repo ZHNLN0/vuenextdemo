@@ -1,75 +1,48 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <!-- <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-router" target="_blank" rel="noopener">router</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-vuex" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul> -->
-    <!-- <component-one /> -->
-    <component :is="componentName" v-model:count="count" />
-    <component-two>
-      slot
-    </component-two>
-    <button @click="changeUser">{{ user }}</button>
-    <component-four :user="user" />
+    <p>{{ pageX }}</p>
+    <p>{{ clientWidth }}</p>
   </div>
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue';
-import ComponentOne from './ComponentOne.vue';
-import ComponentFour from './ComponentFour.vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+/**
+ * @deprecated named import 命名导入失败？？？？
+ * @example export function debounce() {}
+ * import { debounce }
+ */
+import utils from '@/utils/index';
 
 export default {
   name: 'HelloWorld',
   props: {
     msg: String,
   },
-  components: {
-    ComponentOne,
-    ComponentTwo: defineAsyncComponent(() => import('./ComponentTwo.vue')),
-    ComponentFour,
-  },
-  provide() {
+  setup() {
+    const pageX = ref(0);
+    const clientWidth = ref(0);
+    const getPageX = utils.debounce((e) => {
+      pageX.value = e.pageX;
+    }, 100);
+    const getClientWidth = utils.throttle(() => {
+      clientWidth.value = document.body.clientWidth;
+    }, 1000);
+    onMounted(() => {
+      window.addEventListener('mousemove', getPageX);
+      window.addEventListener('resize', getClientWidth);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', getClientWidth);
+      window.removeEventListener('mousemove', getPageX);
+    });
+
     return {
-      provideMsg: 'it is provide message!',
+      pageX,
+      clientWidth,
     };
-  },
-  data() {
-    return {
-      componentName: 'ComponentOne',
-      count: 1,
-      user: 'zhangsan',
-    };
-  },
-  methods: {
-    changeUser() {
-      this.user = this.user === 'zhangsan' ? 'lisi' : 'zhangsan';
-    },
   },
 };
 </script>
